@@ -14,8 +14,8 @@ int in1Yaw = 8; // Input 1 (motor 2, left)
 int in2Yaw = 7; // Input 2 (motor 2, right)
 
 // Define the required pitch and yaw angles
-int requiredPitchAngle = -30;
-int requiredYawAngle = -90;
+int requiredPitchAngle = 20;
+int requiredYawAngle = 20;
 
 void setup() {
   Serial.begin(19200);
@@ -42,11 +42,11 @@ void loop() {
 
   // Extract roll, pitch, and yaw angles
   float roll = mpu6050.getAngleX();
-  int pitch = int(mpu6050.getAngleY());
-  int yaw = int(mpu6050.getAngleZ());
+  float pitch = float(-mpu6050.getAngleY());
+  float yaw = float(mpu6050.getAngleZ());
 
   // Calculate the pitch error
-  int pitchError = requiredPitchAngle - pitch;
+  int pitchError = requiredPitchAngle - int(pitch);
   int pitchMotorSpeed = pitchError * 10.0;
 
   // Calculate the yaw error
@@ -54,7 +54,7 @@ void loop() {
   int yawMotorSpeed = yawError * 10.0;
 
   // Set the motor direction for pitch
-  if (pitchError > 0) {
+  if (pitchError < 0) {
     digitalWrite(in1Pitch, LOW);
     digitalWrite(in2Pitch, HIGH);
   } else {
