@@ -32,8 +32,8 @@ void loop() {
 
   // Extract roll, pitch, and yaw angles
   float roll = mpu6050.getAngleX();
-  float pitch = int(-mpu6050.getAngleY());
-  float yaw = int(mpu6050.getAngleZ());
+  float pitch = -mpu6050.getAngleY();
+  float yaw = mpu6050.getAngleZ();
 
   // Calculate the error between the required yaw angle and the current yaw angle
   int pitchError =  requirePitchAngle - int(pitch);
