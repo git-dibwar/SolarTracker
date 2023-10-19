@@ -15,7 +15,7 @@
 // specific I2C addresses may be passed as a parameter here
 // AD0 low = 0x68 (default for SparkFun breakout and InvenSense evaluation board)
 // AD0 high = 0x69
-MPU6050 mpu;
+MPU6050 mpu (0x69);
 
 #define INTERRUPT_PIN 2  // use pin 2 on Arduino Uno & most boards
 
@@ -59,7 +59,7 @@ int in2Yaw = 7; // Input 2 (motor 2, right)
 
 //Define the required pitch and yaw angles
 // Define the required pitch and yaw angles
-int requiredPitchAngle = 20.0;
+int requiredPitchAngle = 30.0;
 int requiredYawAngle = 20.0;
 
 
@@ -153,6 +153,11 @@ void setup() {
   analogWrite(enPitch, 255);
   analogWrite(enYaw, 255);
 }
+bool pitchCalibrated = false;
+bool yawCalibrated = false;
+float tolerance = 1.5; // Set the tolerance value to 1 degree or adjust it as needed
+int pitchMotorPin = 9; // Replace with the actual pin number you are using
+int yawMotorPin = 10; // Replace with the actual pin number you are using
 
 void loop() {
   if (!dmpReady) {
@@ -170,32 +175,59 @@ void loop() {
     float pitch = ypr[1] * 180 / M_PI;
 
 
-    // Calculate the pitch error
-    float pitchError = requiredPitchAngle - pitch;
-    float pitchMotorSpeed = pitchError * 10.0;
+    if (!pitchCalibrated) {
+      // Calculate the pitch error
+      float pitchError = requiredPitchAngle - pitch;
+      float pitchMotorSpeed = pitchError * 10.0;
 
-    // Calculate the yaw error
-    float yawError = requiredYawAngle - yaw;
-    float yawMotorSpeed = yawError * 10.0;
+      // Set the motor direction for pitch
+      if (pitchError > 0) {
+        digitalWrite(in1Pitch, LOW);
+        digitalWrite(in2Pitch, HIGH);
+      } else {
+        digitalWrite(in1Pitch, HIGH);
+        digitalWrite(in2Pitch, LOW);
+      }
 
-    // Set the motor direction for pitch
-    if (pitchError < 0) {
-      digitalWrite(in1Pitch, LOW);
-      digitalWrite(in2Pitch, HIGH);
-    } else {
-      digitalWrite(in1Pitch, HIGH);
-      digitalWrite(in2Pitch, LOW);
+      // Control pitch motor speed
+      float speedFactor = 0.5; // Adjust this factor to decrease the speed (0.5 means 50% speed)
+      analogWrite(pitchMotorPin, abs(pitchMotorSpeed) * speedFactor);
+
+
+      // Check if pitch calibration is complete
+      if (abs(pitchError) < tolerance) {
+        // Pitch calibration is complete
+        digitalWrite(in1Pitch, LOW);
+        digitalWrite(in2Pitch, LOW);
+        analogWrite(pitchMotorPin, 0);
+        pitchCalibrated = true;
+      }
+    } else if (!yawCalibrated) {
+      // Calculate the yaw error
+      float yawError = requiredYawAngle - yaw;
+      float yawMotorSpeed = yawError * 10.0;
+
+      // Set the motor direction for yaw
+      if (yawError < 0) {
+        digitalWrite(in1Yaw, HIGH);
+        digitalWrite(in2Yaw, LOW);
+      } else {
+        digitalWrite(in1Yaw, LOW);
+        digitalWrite(in2Yaw, HIGH);
+      }
+
+      // Control yaw motor speed
+      analogWrite(yawMotorPin, abs(yawMotorSpeed));
+
+      // Check if yaw calibration is complete
+      if (abs(yawError) < tolerance) {
+        // Yaw calibration is complete
+        digitalWrite(in1Yaw, LOW);
+        digitalWrite(in2Yaw, LOW);
+        analogWrite(yawMotorPin, 0);
+        yawCalibrated = true;
+      }
     }
-
-    // Set the motor direction for yaw
-    if (yawError < 0) {
-      digitalWrite(in1Yaw, HIGH);
-      digitalWrite(in2Yaw, LOW);
-    } else {
-      digitalWrite(in1Yaw, LOW);
-      digitalWrite(in2Yaw, HIGH);
-    }
-
 
     Serial.print("yaw: " + String(yaw));
     Serial.print("\t");
