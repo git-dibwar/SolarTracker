@@ -42,7 +42,7 @@ void loop() {
   int motorSpeed = abs(pitchError) * 10.0;
 
   // Set the motor direction
-  if (pitchError < 0) {
+  if (pitchError > 0) {
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH);
   } else {
