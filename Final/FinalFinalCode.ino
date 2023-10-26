@@ -3,7 +3,7 @@
 #include "CytronMotorDriver.h"
 #include <SolarCalculator.h>
 #include <TimeLib.h>
-
+#include <DS1307RTC.h> // Include the DS1307RTC library for RTC support
 //==================================================================================
 
 
@@ -32,7 +32,8 @@ void setup() {
   Wire.begin();
   mpu6050.begin();
   mpu6050.calcGyroOffsets(true);
-  setTime(toUtc(compileTime()));
+  setSyncProvider(RTC.get); // Set the RTC as the time provider
+
 }
 
 void loop() {
@@ -42,7 +43,7 @@ void loop() {
   // At every interval
   if (millis() > next_millis)
   {
-    time_t utc = now();
+    time_t utc = now() - utc_offset * 3600L;;
     double az, el;
 
     // Calculate the solar position, in degrees
@@ -98,29 +99,3 @@ void loop() {
 }
 
 //=================================================================
-time_t toUtc(time_t local)
-{
-  return local - utc_offset * 3600L;
-}
-
-// Code from JChristensen/Timezone Clock example
-time_t compileTime()
-{
-  const uint8_t COMPILE_TIME_DELAY = 8;
-  const char *compDate = __DATE__, *compTime = __TIME__, *months = "JanFebMarAprMayJunJulAugSepOctNovDec";
-  char chMon[4], *m;
-  tmElements_t tm;
-
-  strncpy(chMon, compDate, 3);
-  chMon[3] = '\0';
-  m = strstr(months, chMon);
-  tm.Month = ((m - months) / 3 + 1);
-
-  tm.Day = atoi(compDate + 4);
-  tm.Year = atoi(compDate + 7) - 1970;
-  tm.Hour = atoi(compTime);
-  tm.Minute = atoi(compTime + 3);
-  tm.Second = atoi(compTime + 6);
-  time_t t = makeTime(tm);
-  return t + COMPILE_TIME_DELAY;
-}
