@@ -61,7 +61,7 @@ void setup() {
   }
   Wire.begin();
   mpu6050.begin();
-  mpu6050.calcGyroOffsets(true);
+  mpu6050.calcGyroOffsets(false);
   setSyncProvider(RTC.get); // Set the RTC as the time provider
   lastAlignmentTime = now(); // Initialize the last alignment time
 }
