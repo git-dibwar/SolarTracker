@@ -9,7 +9,7 @@ MPU6050 mpu6050(Wire);
 CytronMD motor1(PWM_DIR, 7, 8); //yaw, pwm;dir
 CytronMD motor2(PWM_DIR, 6, 3); //pitch, pwm;dir
 
-bool yawCalibrated = false;
+bool yawCalibrated = true;
 bool pitchCalibrated = false;
 int tolerance = 1;
 
@@ -73,7 +73,7 @@ void loop() {
   // Calculate the solar position, in degrees
   double az, el;
   calcHorizontalCoordinates(currentTime - utc_offset * 3600L, latitude, longitude, az, el);
-  int adjustmentAngle=0;
+  int adjustmentAngle=90;
 
   if (!yawCalibrated) {
     int yaw = round(int(-mpu6050.getAngleZ()));
@@ -84,18 +84,19 @@ void loop() {
       yawCalibrated = true;
       Serial.println("Yaw calibration completed.");
     } else {
-      if (yawError > 0) {
-        motor1.setSpeed(128);
-      } else {
-        motor1.setSpeed(-128);
-      }
+        if (yawError > 0) {
+          motor1.setSpeed(128);
+        } 
+        else {
+          motor1.setSpeed(-128);
+       }
     }
     Serial.println("Azimuth Angle: " + String(round(az))+"          Yaw Angle: "+String(round(yaw)));
     // Serial.println(az);
   } else if (!pitchCalibrated) {
     int pitch = round(int(mpu6050.getAngleY()));
-    int pitchError = round(el + adjustmentAngle) - int(pitch);
-
+    int targetPitch = adjustmentAngle - round(el);
+    int pitchError = targetPitch - int(pitch);
     if (abs(pitchError) < tolerance) {
       motor2.setSpeed(0);
       pitchCalibrated = true;
@@ -107,7 +108,7 @@ void loop() {
         motor2.setSpeed(90); // Adjust the speed as needed
       }
     }
-    Serial.println("Elevation Angle: " + String(round(el))+"     Pitch Angle: "+String(round(pitch-adjustmentAngle)));
+    Serial.println("Elevation Angle: " + String(round(el))+"     Pitch Angle: "+String(round(targetPitch)));
     // Serial.println(round(el));
   }
 
@@ -116,7 +117,7 @@ void loop() {
     int pitchChange = round(el)-currentPitch;
     int azimuthChange = round(az)-currentAzimuth;
     if(azimuthChange != 0){
-     yawCalibrated = false;
+     yawCalibrated = true;
     }
     if (pitchChange != 0) {
        pitchCalibrated = false;
