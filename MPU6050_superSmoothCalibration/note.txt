@@ -1,0 +1,7 @@
+in MPU6050 library change the default address using 
+-------------------FROM--------------------------
+MPU6050::MPU6050(uint8_t address):devAddr(address) {
+}
+-------------------TO------------------------------
+MPU6050::MPU6050(uint8_t address):devAddr(0x69) {
+}
