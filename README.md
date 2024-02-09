@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="https://github.com/git-dibwar/SolarTracker/blob/main/report/tracker.gif" alt="Tracker GIF" width="300"/>
+  <img src="https://github.com/git-dibwar/Worm-gear-driven-azimuth-elevate-solar-tracker/blob/main/report/tracker.gif" alt="Tracker GIF" width="300"/>
 </p>
 
-![Page 1](https://github.com/git-dibwar/SolarTracker/blob/main/report/page1.jpg)
-![Page 2](https://github.com/git-dibwar/SolarTracker/blob/main/report/page2.jpg)
+![Page 1](https://github.com/git-dibwar/Worm-gear-driven-azimuth-elevate-solar-tracker/blob/main/report/page1.jpg)
+![Page 2](https://github.com/git-dibwar/Worm-gear-driven-azimuth-elevate-solar-trackerr/blob/main/report/page2.jpg)
 
 ## REFERENCES
 1. [astronomy - Consistency with calculating the Solar Azimuth Angle - Physics Stack Exchange](https://physics.stackexchange.com/questions/443184/consistency-with-calculating-the-Solar-Azimuth-Angle)
